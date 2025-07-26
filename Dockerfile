@@ -1,33 +1,32 @@
 FROM python:3.10-slim-buster
 
-# The dalai server runs on port 3000
-EXPOSE 3000
-
-# Install dependencies
-RUN apt-get update \
-    && apt-get install -y \
+RUN : \
+    && apt-get update --yes --fix-missing \
+    && apt-get install --yes \
         build-essential \
         curl \
         g++ \
-	git \
+        git \
         make \
         python3-venv \
-        software-properties-common
-
-# Add NodeSource PPA to get Node.js 18.x
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-
-# Install Node.js 18.x
-RUN apt-get update \
-    && apt-get install -y nodejs
+        software-properties-common \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update --yes --fix-missing \
+    && apt-get install --yes \
+        nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && :
 
 WORKDIR /root/dalai
 
 # Install dalai and its dependencies
-RUN npm install dalai@0.3.1
+RUN : \
+    && npm install dalai@0.3.1 \
+    && npx dalai alpaca setup \
+    && :
 
-RUN npx dalai alpaca setup
-
+# The dalai server runs on port 3000
+EXPOSE 3000
 
 # Run the dalai server
 CMD [ "npx", "dalai", "serve" ]
